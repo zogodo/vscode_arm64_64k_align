@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+// #include <libelf.h>
+
 #define EI_NIDENT 16
 
 #define Elf64_Addr      uint64_t
@@ -64,6 +66,22 @@ int main()
     fclose(fileptr);                      // Close the file
 
     ElfN_Ehdr* elf = (ElfN_Ehdr*)buffer;
-    printf("hello %d\n", elf->e_type);
+    printf("e_phoff = %p\n", elf->e_phoff);
+    printf("e_phnum = %d\n", elf->e_phnum);
+
+    Elf64_Phdr* phdr = (Elf64_Phdr*)(buffer + elf->e_phoff);
+    for (int i = 0; i < elf->e_phnum; i++)
+    {
+
+        printf("p_type[%10d] p_memsz[%010p] p_align[%08p]\n", phdr[i].p_type, phdr[i].p_memsz, phdr[i].p_align);
+    }
+
+    phdr[2].p_filesz = phdr[5].p_offset + phdr[5].p_filesz;
+    printf("%p %p %p\n", phdr[2].p_filesz, phdr[5].p_offset, phdr[5].p_filesz);
+
+    phdr[3].p_type = 4;
+    phdr[4].p_type = 4;
+    phdr[5].p_type = 4;
+
     return 0;
 }
