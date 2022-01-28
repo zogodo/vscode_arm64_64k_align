@@ -1,10 +1,6 @@
 #include<stdio.h>
 #include<stdint.h>
-
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-
+#include<stdlib.h>
 // #include <libelf.h>
 
 #define EI_NIDENT 16
@@ -54,7 +50,7 @@ int main()
     if ((fileptr = fopen("code-oss", "r")) == NULL)
     {
         printf("Fail to open file!");
-        exit(1);
+        return 1;
     }
 
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
@@ -89,7 +85,7 @@ int main()
     if ((fileptr = fopen("code-oss-64k", "w+")) == NULL)
     {
         printf("Fail to open file!");
-        exit(1);
+        return 1;
     }
 
     fwrite(buffer, filelen, 1, fileptr);
