@@ -51,7 +51,7 @@ typedef struct {
 int main()
 {
     FILE* fileptr;
-    if ((fileptr = fopen("code-oss", "rb+")) == NULL)
+    if ((fileptr = fopen("code-oss", "r")) == NULL)
     {
         printf("Fail to open file!");
         exit(1);
@@ -72,16 +72,28 @@ int main()
     Elf64_Phdr* phdr = (Elf64_Phdr*)(buffer + elf->e_phoff);
     for (int i = 0; i < elf->e_phnum; i++)
     {
-
         printf("p_type[%10d] p_memsz[%010p] p_align[%08p]\n", phdr[i].p_type, phdr[i].p_memsz, phdr[i].p_align);
     }
 
+    uint64_t old_p_filesz = phdr[2].p_filesz;
     phdr[2].p_filesz = phdr[5].p_offset + phdr[5].p_filesz;
+    phdr[2].p_memsz += (phdr[2].p_filesz - old_p_filesz);
+    phdr[2].p_flags |= phdr[3].p_flags | phdr[4].p_flags | phdr[5].p_flags;
+    phdr[2].p_align = 0x10000;
     printf("%p %p %p\n", phdr[2].p_filesz, phdr[5].p_offset, phdr[5].p_filesz);
 
     phdr[3].p_type = 4;
     phdr[4].p_type = 4;
     phdr[5].p_type = 4;
+
+    if ((fileptr = fopen("code-oss-64k", "w+")) == NULL)
+    {
+        printf("Fail to open file!");
+        exit(1);
+    }
+
+    fwrite(buffer, filelen, 1, fileptr);
+    fclose(fileptr);
 
     return 0;
 }
